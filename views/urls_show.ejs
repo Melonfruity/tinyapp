@@ -14,8 +14,14 @@
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
     <div class="card-footer text-muted"></div>
-    <div>
-      <a href="#">Create a new</a>
+    <div class="d-flex justify-content-center">
+      <form class="form-inline" method="POST" action="/urls/<%= shortURL %>">
+        <div class="form-group mb-2">
+          <label for="longURL">Enter a new URL:</label>
+          <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
     </div>
   </div>
   <!-- Bootstrap JS -->
