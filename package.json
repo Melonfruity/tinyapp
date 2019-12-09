@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/Melonfruity/tinyapp/issues"
   },
-  "homepage": "https://github.com/Melonfruity/tinyapp#readme"
+  "homepage": "https://github.com/Melonfruity/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
