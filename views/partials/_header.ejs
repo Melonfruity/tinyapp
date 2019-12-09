@@ -10,5 +10,17 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+      <% if(username === undefined) { %>
+        <% console.log(username === undefined) %>
+        <form method="POST" action="/login">
+          <input type="text" placeholder='username' name='username'>
+          <button type='submit'>Log In</button>
+        </form>
+      <% } else { %>
+        <form method="POST" action="/logout">
+          <button type='submit'>Log Out</button>
+        </form>
+      <% } %>
+    </div>
   </nav>
 </header>

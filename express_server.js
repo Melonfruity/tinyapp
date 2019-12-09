@@ -1,5 +1,6 @@
 const express = require('express');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8000;
 
@@ -22,22 +23,29 @@ function generateRandomString() {
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 app.get('/urls', (req, res) => {
+  console.log('cookies:', req.cookies);
   let templateVariables = {
-    urls: urlDatabase
+    urls: urlDatabase,
+    username: req.cookies ? req.cookies["username"] : undefined,
   }
   res.render('urls_index', templateVariables);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVariables = {
+    username: req.cookies ? req.cookies["username"] : undefined,
+  };
+  res.render("urls_new", templateVariables);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
   let templateVariables = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies ? req.cookies["username"] : undefined,
   }
   res.render(`urls_show`, templateVariables);
 })
@@ -67,6 +75,24 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   console.log(req.params.shortURL);
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls')
+})
+
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  console.log(username);
+  console.log();
+  res
+    .cookie('username', `${username}`)
+    .redirect(301, '/urls');
+})
+
+app.post('/logout', (req, res) => {
+  const username = req.body.username;
+  console.log(username);
+  console.log();
+  res
+    .clearCookie('username')
+    .redirect(301, '/urls');
 })
 
 app.listen(PORT, () => {
