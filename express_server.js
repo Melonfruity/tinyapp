@@ -5,8 +5,10 @@ const app = express();
 const PORT = 8000;
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  b6Us2Q: { longURL: "https://www.facebook.com", userID: "user2RandomID" },
+  b6oPOQ: { longURL: "https://www.poop.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const users = {
@@ -18,6 +20,11 @@ const users = {
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
+    password: "dishwasher-funk"
+  },
+  "aJ48lW": {
+    id: "aJ48lW",
+    email: "user3@example.com",
     password: "dishwasher-funk"
   }
 };
@@ -54,7 +61,6 @@ const userHelper = (email, password, register) => {
         email: email,
         password: password,
       }
-      console.log(users);
       return id;
     }
   } else {
@@ -63,6 +69,17 @@ const userHelper = (email, password, register) => {
 
 };
 
+const urlsForUser = (id) => {
+  let userURLs = {}
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+      userURLs[key] = urlDatabase[key].longURL
+    } 
+  }
+  console.log(userURLs);
+  return userURLs;
+}
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
@@ -70,19 +87,33 @@ app.set('view engine', 'ejs');
 
 app.get('/urls', (req, res) => {
   
-  let templateVariables = {
-    urls: urlDatabase,
-    user: req.cookies ? users[req.cookies["userID"]] : undefined,
-  };
-  
-  res.render('urls_index', templateVariables);
-
+  const cookie = req.cookies ? users[req.cookies["userID"]] : undefined;
+    
+  if (cookie) {
+    const userID = cookie.id;
+    const urls = urlsForUser(userID);
+    console.log(urls);
+    let templateVariables = {
+      urls: urls,
+      user: cookie,
+    };
+    
+    res.render('urls_index', templateVariables);
+  } else {
+    res.redirect(301, '/login');
+  }
 });
 
-app.get("/urls/new", (req, res) => {
-  
+// Changed urls => url because for some reason it keeps calling /urls/:shortURL even though /urls/new is before
+app.get('/url/new', (req, res) => {
+
+  const cookies = req.cookies ? users[req.cookies["userID"]] : undefined;
+  if (!cookies) {
+    res.redirect(301, '/login');
+  }
+
   let templateVariables = {
-    user: req.cookies ? users[req.cookies["userID"]] : undefined,
+    user: cookies,
   };
   
   res.render("urls_new", templateVariables);
@@ -91,23 +122,31 @@ app.get("/urls/new", (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
 
-  // Bug here where short URL works but long URL doesn't
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const cookie = req.cookies ? users[req.cookies["userID"]] : undefined;
+    
+  if (cookie) {
+    const userID = cookie.id;
+    const longURL = urlsForUser(userID)[shortURL];
+    
+    let templateVariables = {
+      shortURL: shortURL,
+      longURL: longURL,
+      user: cookie,
+    };
+    
+    res.render('urls_show', templateVariables);
 
-  let templateVariables = {
-    shortURL: shortURL,
-    longURL: longURL,
-    user: req.cookies ? users[req.cookies["userID"]] : undefined,
-  };
+  } else {
+    res.redirect(301, '/login');
+  }
 
-  res.render(`urls_show`, templateVariables);
 });
 
 app.get('/u/:shortURL', (req, res) => {
-
+  
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 
 });
@@ -132,31 +171,71 @@ app.get('/login', (req, res) => {
   res.render(`login`, templateVariables);
 });
 
+// New URL
 app.post('/urls', (req, res) => {
   
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
+
+  const userID = req.cookies["userID"];
   
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {longURL: longURL, userID: userID};
   res
     .redirect('/urls');
 
 });
 
+// Edit URL
 app.post('/urls/:shortURL', (req, res) => {
- 
+/* 
+  const shortURL = req.params.shortURL;
+  const cookie = req.cookies ? users[req.cookies["userID"]] : undefined;
+    
+  if (cookie) {
+    const userID = cookie.id;
+    const longURL = urlsForUser(userID)[shortURL];
+    
+    let templateVariables = {
+      shortURL: shortURL,
+      longURL: longURL,
+      user: cookie,
+    };
+    
+    res.render('urls_show', templateVariables);
+
+  } else {
+    res.redirect(301, '/login');
+  }
+
+ */  console.log(`post url shorturl`);
   const longURL = req.body.longURL;
   const shortURL = req.params.shortURL;
  
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {
+    ...urlDatabase[shortURL], 
+    longURL: longURL};
+
   res.redirect(`/urls/${shortURL}`);
 
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
- 
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  
+  const cookie = req.cookies ? users[req.cookies["userID"]] : undefined;
+  const shortURL = req.params.shortURL;
+
+  if (cookie) {
+
+    const userID = cookie.id;
+      if (urlDatabase[shortURL].userID === userID) {
+        delete urlDatabase[shortURL];
+        res.redirect('/urls');
+      } else {
+        res.status(401).end();
+      }
+  } else {
+    res.redirect(301, '/login');
+  }
 
 });
 
