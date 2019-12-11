@@ -48,3 +48,15 @@ describe('getUserByEmail', () => {
     assert.equal(user, expectedOutput);
   });
 });
+
+describe('generateRandomString', () => {
+  it('should return a string', () => {
+    const randomString = generateRandomString();
+    assert.isString(randomString);
+  });
+
+  it('should return a string of length 6', () => {
+    const randomString = generateRandomString();
+    assert.equal(randomString.length, 6);
+  });
+});
