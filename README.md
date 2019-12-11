@@ -7,6 +7,14 @@ Simple url shortener application. Urls are shortened to a random 6 character alp
 ```sh
 $ npm install
 ```
+## Dependencies
+
+- Node.js
+- Express
+- EJS
+- bcrypt
+- body-parser
+- cookie-session
 
 ## Usage
 
