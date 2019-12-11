@@ -64,8 +64,6 @@ app.get('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
 
   const cookie = req.session ? users[req.session.userID] : undefined;
-  console.log(req.session);
-  console.log(req.session.userID);
   if (cookie) {  
     let templateVariables = {
       user: cookie,
