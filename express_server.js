@@ -134,9 +134,9 @@ app.get('/u/:shortURL', (req, res) => {
   
     res.redirect(longURL);
   
+  } else {
+    res.status(404).send('NOT FOUND');
   }
-
-  res.status(404).send('NOT FOUND');
 
 });
 
