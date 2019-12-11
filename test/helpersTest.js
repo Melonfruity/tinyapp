@@ -89,3 +89,29 @@ describe('userState with hashed passwords', () => {
     assert.equal(user, 'userRandomID');
   });
 });
+
+describe('urlsForUsers', () => {
+  it('should return an object with a valid user', () => {
+    const id = `aJ48lW`;
+    const userUrls = urlsForUser(id, urlDatabase);
+    assert.isObject(userUrls);
+  });
+  
+  it('should contain urls of only that user', () => {
+    const id = `aJ48lW`;
+    const userUrls = urlsForUser(id, urlDatabase);
+    const validUrls = {
+      b6UTxQ: "https://www.tsn.ca",
+      b6oPOQ: "https://www.poop.ca",
+      i3BoGr: "https://www.google.ca",
+    };
+    
+    assert.deepEqual(userUrls, validUrls);
+  });
+
+  it('should return an empty object with a invalid user', () => {
+    const id = `aJ48W`;
+    const userUrls = urlsForUser(id, urlDatabase);
+    assert.isEmpty(userUrls);
+  });
+});
