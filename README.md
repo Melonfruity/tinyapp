@@ -27,3 +27,8 @@ A user must be logged in to do the following:
 3. Delete a short url they created
 
 A url can be accessed by typing adding the route /u/:shortURL
+
+# Screenshots
+
+!["Screenshot of URLs page"](https://github.com/Melonfruity/tinyapp/blob/master/docs/urls.png)
+!["Screenshot of ShortURLs edit page"](https://github.com/Melonfruity/tinyapp/blob/master/docs/shortURLedit.png)
