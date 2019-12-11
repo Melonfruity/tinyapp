@@ -60,3 +60,32 @@ describe('generateRandomString', () => {
     assert.equal(randomString.length, 6);
   });
 });
+
+
+describe('userState with hashed passwords', () => {
+  it('should return a new 6 length string id when registering a valid new user', () => {
+    const newUserKey = userState('test@gmail.com', '214124', userDatabase, true);
+    assert.isString(newUserKey);
+    assert.equal(newUserKey.length, 6);
+  });
+
+  it('should return false registering an invalid new user email', () => {
+    const newUserKey = userState('', '214124', userDatabase, true);
+    assert.isFalse(newUserKey);
+  });
+
+  it('should return false registering an invalid new user password', () => {
+    const newUserKey = userState('test@gmail.com', '', userDatabase, true);
+    assert.isFalse(newUserKey);
+  });
+
+  it('should return undefined if logging in with a invalid user', () => {
+    const user = userState('test@gmail.com', '12312', userDatabase);
+    assert.isUndefined(user);
+  });
+  
+  it('should return user if valid user logs in and proper keys are provided', () => {
+    const user = userState('user@example.com', 'purple-monkey-dinosaur', userDatabase);
+    assert.equal(user, 'userRandomID');
+  });
+});
