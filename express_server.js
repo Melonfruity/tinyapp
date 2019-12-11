@@ -7,11 +7,20 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
+const getDate = () => {
+  let today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yyyy = today.getFullYear();
+  today = mm + '/' + dd + '/' + yyyy;
+  return today;
+};
+
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  b6Us2Q: { longURL: "https://www.facebook.com", userID: "user2RandomID" },
-  b6oPOQ: { longURL: "https://www.poop.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+  b6UTxQ: { longURL: "https://www.tsn.ca", date: getDate(), count: 0, uniqueVisits: [], userID: "aJ48lW" },
+  b6Us2Q: { longURL: "https://www.facebook.com", date: getDate(), count: 0, uniqueVisits: [], userID: "user2RandomID" },
+  b6oPOQ: { longURL: "https://www.poop.ca", date: getDate(), count: 0, uniqueVisits: [], userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", date: getDate(), count: 0, uniqueVisits: [], userID: "aJ48lW" }
 };
 
 const users = {
@@ -60,7 +69,6 @@ app.get('/urls', (req, res) => {
   }
 });
 
-// Changed urls => url because for some reason it keeps calling /urls/:shortURL even though /urls/new is before
 app.get('/urls/new', (req, res) => {
 
   const cookie = req.session ? users[req.session.userID] : undefined;
@@ -82,7 +90,7 @@ app.get('/urls/:shortURL', (req, res) => {
   const cookie = req.session ? users[req.session.userID] : undefined;
   if (cookie) {
     const userID = cookie.id;
-    const longURL = urlsForUser(userID, urlDatabase)[shortURL];
+    const longURL = urlsForUser(userID, urlDatabase)[shortURL].longURL;
     let templateVariables = {
       shortURL: shortURL,
       longURL: longURL,
@@ -100,7 +108,12 @@ app.get('/u/:shortURL', (req, res) => {
   
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
-  
+
+  urlDatabase[shortURL].count += 1;
+  if (!urlDatabase[shortURL].uniqueVisits.includes(req.session.userID)) {
+    urlDatabase[shortURL].uniqueVisits.push(req.session.userID);
+  }
+
   res.redirect(longURL);
 });
 
@@ -132,27 +145,37 @@ app.post('/urls', (req, res) => {
 
   const userID = req.session.userID;
   
-  urlDatabase[shortURL] = {longURL: longURL, userID: userID};
+  urlDatabase[shortURL] = {
+    longURL: longURL, 
+    date: getDate(),
+    count: 0,
+    uniqueVisits: 0,
+    userID: userID};
+
   res
     .redirect('/urls');
 
 });
 
 // Edit URL
-app.post('/urls/:shortURL', (req, res) => {
+app.post('/urls/:shortURL', (req, res) => {  
 
   const longURL = req.body.longURL;
   const shortURL = req.params.shortURL;
   const cookie = req.session ? req.session : undefined;
   const userID = cookie.userID;
-  
-  const newURL = {
-    longURL: longURL.substring(0,7) === 'http://' ? longURL : 'http://'.concat(longURL),
-    userID: userID,
-  };
-  urlDatabase[shortURL] = newURL;
-  res.redirect(`/urls/${shortURL}`);
 
+  if(urlDatabase[shortURL].userID === userID) {
+    const newURL = {
+      ...urlDatabase[shortURL],
+      longURL: longURL.substring(0,7) === 'http://' ? longURL : 'http://'.concat(longURL),
+    };
+    urlDatabase[shortURL] = newURL;
+    res.redirect(`/urls/${shortURL}`);  
+  } else {
+    res.redirect(400, `/urls`);
+  }
+  
 });
 
 // Delete URL

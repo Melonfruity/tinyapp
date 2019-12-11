@@ -1,21 +1,10 @@
 const bcrypt = require('bcrypt');
-/*
-const getUserByEmail = function(email, database) {
-  // lookup magic...
-  let user;
-  for (let key in database) {
-    if (database[key].email === email) {
-      user = key;
-    }
-  }
-  return user;
-}; */
 
 const urlsForUser = (id, urlDatabase) => {
   let userURLs = {};
   for (let key in urlDatabase) {
     if (urlDatabase[key].userID === id) {
-      userURLs[key] = urlDatabase[key].longURL;
+      userURLs[key] = urlDatabase[key];
     }
   }
   return userURLs;
