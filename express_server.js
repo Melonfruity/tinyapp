@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
+const _ = require('lodash');
 const { urlsForUser, userState, generateRandomString } = require('./helpers');
 const bcrypt = require('bcrypt');
 const app = express();
@@ -87,22 +88,28 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
 
   const shortURL = req.params.shortURL;
+  
+  
   const cookie = req.session ? users[req.session.userID] : undefined;
-  const userID = cookie.id;
   
   if (cookie) {
+    const userID = cookie.id;
+
     const url = urlsForUser(userID, urlDatabase)[shortURL];
 
-    let templateVariables = {
-      shortURL: shortURL,
-      url: url,
-      user: cookie,
-    };
-
-    res.render('urls_show', templateVariables);
+    if(url) {
+      let templateVariables = {
+        shortURL: shortURL,
+        url: url,
+        user: cookie,
+      }
+      res.render('urls_show', templateVariables);
+    } else {
+      res.status(401).send('Unauthorized Access');
+    }
 
   } else {
-    res.redirect(301, '/login');
+    res.redirect(301, '/urls');
   }
 
 });
