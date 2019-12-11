@@ -1,4 +1,4 @@
-# tinyURL
+# tinyAPP
 
 Simple url shortener application. Urls are shortened to a random 6 character alphanumeric string.
 
@@ -18,4 +18,4 @@ A user must be logged in to do the following:
 2. Edit a short url they created
 3. Delete a short url they created
 
-A url can be accessed by typing adding the route /u/shortURL
+A url can be accessed by typing adding the route /u/:shortURL
