@@ -2,20 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
-const _ = require('lodash');
-const { urlsForUser, userState, generateRandomString } = require('./helpers');
+const { urlsForUser, userState, generateRandomString, getDate } = require('./helpers');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
-
-const getDate = () => {
-  let today = new Date();
-  const dd = String(today.getDate()).padStart(2, '0');
-  const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-  const yyyy = today.getFullYear();
-  today = mm + '/' + dd + '/' + yyyy;
-  return today;
-};
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", date: getDate(), count: 0, uniqueVisits: [], userID: "aJ48lW" },
@@ -73,7 +63,7 @@ app.get('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
 
   const cookie = req.session ? users[req.session.userID] : undefined;
-  if (cookie) {  
+  if (cookie) {
     let templateVariables = {
       user: cookie,
     };
@@ -97,12 +87,12 @@ app.get('/urls/:shortURL', (req, res) => {
 
     const url = urlsForUser(userID, urlDatabase)[shortURL];
 
-    if(url) {
+    if (url) {
       let templateVariables = {
         shortURL: shortURL,
         url: url,
         user: cookie,
-      }
+      };
       res.render('urls_show', templateVariables);
     } else {
       res.status(401).send('Unauthorized Access');
@@ -120,8 +110,11 @@ app.get('/u/:shortURL', (req, res) => {
   if (urlDatabase[shortURL]) {
   
     const longURL = urlDatabase[shortURL].longURL;
-  
+    
+    // Increase visits
     urlDatabase[shortURL].count += 1;
+
+    // Increase unique visits
     if (!urlDatabase[shortURL].uniqueVisits.includes(req.session.userID)) {
       urlDatabase[shortURL].uniqueVisits.push(req.session.userID);
     }
@@ -133,20 +126,34 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
- 
+
+  const userObj = req.session ? users[req.session.userID] : undefined;
+  
+  if (userObj) {
+    res.redirect(301, '/urls');
+  }
+
   let templateVariables = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    user: req.sessions ? users[req.session.userID] : undefined,
+    user: userObj,
   };
+
   res.render(`register`, templateVariables);
 });
 
 app.get('/login', (req, res) => {
+
+  const userObj = req.session ? users[req.session.userID] : undefined;
+  
+  if (userObj) {
+    res.redirect(301, '/urls');
+  }
+
   let templateVariables = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    user: req.sessions ? users[req.session.userID] : undefined,
+    user: userObj,
   };
 
   res.render(`login`, templateVariables);
@@ -161,7 +168,7 @@ app.post('/urls', (req, res) => {
   const userID = req.session.userID;
   
   urlDatabase[shortURL] = {
-    longURL: longURL, 
+    longURL: longURL,
     date: getDate(),
     count: 0,
     uniqueVisits: 0,
@@ -173,20 +180,20 @@ app.post('/urls', (req, res) => {
 });
 
 // Edit URL
-app.post('/urls/:shortURL', (req, res) => {  
+app.post('/urls/:shortURL', (req, res) => {
 
   const longURL = req.body.longURL;
   const shortURL = req.params.shortURL;
   const cookie = req.session ? req.session : undefined;
   const userID = cookie.userID;
 
-  if(urlDatabase[shortURL].userID === userID) {
+  if (urlDatabase[shortURL].userID === userID) {
     const newURL = {
       ...urlDatabase[shortURL],
       longURL: longURL.substring(0,7) === 'http://' ? longURL : 'http://'.concat(longURL),
     };
     urlDatabase[shortURL] = newURL;
-    res.redirect(`/urls/${shortURL}`);  
+    res.redirect(`/urls/${shortURL}`);
   } else {
     res.redirect(400, `/urls`);
   }
@@ -228,8 +235,8 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  req.session.userID = undefined;
-  res.redirect(301, '/urls');
+  req.session = null;
+  res.redirect(301, '/login');
 });
 
 app.post('/register', (req, res) => {
