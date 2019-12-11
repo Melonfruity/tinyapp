@@ -88,14 +88,17 @@ app.get('/urls/:shortURL', (req, res) => {
 
   const shortURL = req.params.shortURL;
   const cookie = req.session ? users[req.session.userID] : undefined;
+  const userID = cookie.id;
+  
   if (cookie) {
-    const userID = cookie.id;
-    const longURL = urlsForUser(userID, urlDatabase)[shortURL].longURL;
+    const url = urlsForUser(userID, urlDatabase)[shortURL];
+
     let templateVariables = {
       shortURL: shortURL,
-      longURL: longURL,
+      url: url,
       user: cookie,
     };
+
     res.render('urls_show', templateVariables);
 
   } else {
