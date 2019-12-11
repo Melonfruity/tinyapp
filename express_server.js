@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const methodOverride = require('method-override')
-const { urlsForUser, userState, generateRandomString, getDate } = require('./helpers');
+const { urlsForUser, userState, generateRandomString, getDate, getTimestamp } = require('./helpers');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
@@ -124,9 +124,12 @@ app.get('/u/:shortURL', (req, res) => {
     // Increase visits
     urlDatabase[shortURL].count += 1;
 
-    // Increase unique visits
-    if (!urlDatabase[shortURL].uniqueVisits.includes(req.session.userID)) {
-      urlDatabase[shortURL].uniqueVisits.push(req.session.userID);
+    if (!urlDatabase[shortURL].uniqueVisits[req.session.userID]) {
+      const newUniqueVisitor = {
+        id: req.session.userID ? req.session.userID : generateRandomString(),
+        time: getTimestamp(),
+      }
+      urlDatabase[shortURL].uniqueVisits[newUniqueVisitor.id] = newUniqueVisitor;
     }
   
     res.redirect(longURL);

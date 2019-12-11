@@ -64,9 +64,15 @@ const getDate = () => {
   return today;
 };
 
+const getTimestamp = () => {
+  const dateObj = new Date();
+  return dateObj.toString();
+}
+
 module.exports = {
   userState,
   urlsForUser,
   generateRandomString,
   getDate,
+  getTimestamp,
 };

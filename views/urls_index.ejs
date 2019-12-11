@@ -32,7 +32,7 @@
             <td><a href="<%= urls[url].longURL %>"><%= urls[url].longURL %></a></td>
             <td><%= urls[url].date %></td>
             <td><%= urls[url].count %></td>
-            <td><%= urls[url].uniqueVisits.length %></td>
+            <td><%= Object.keys(urls[url].uniqueVisits).length %></td>
             <td>
               <form method="GET" action="/urls/<%= url %>">
                 <button type="submit" class="btn btn-primary">
