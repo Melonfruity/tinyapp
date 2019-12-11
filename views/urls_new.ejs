@@ -9,10 +9,8 @@
 
     <title>New URL - TinyApp Example</title>
   </head>
-
+  <%- include('partials/_header.ejs', {user: user}) %>
   <body>
-
-    <%- include('partials/_header.ejs', {user: user}) %>
 
     <main style="margin: 1em;">
       <h3>Create TinyURL</h3>
