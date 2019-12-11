@@ -117,14 +117,19 @@ app.get('/urls/:shortURL', (req, res) => {
 app.get('/u/:shortURL', (req, res) => {
   
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-
-  urlDatabase[shortURL].count += 1;
-  if (!urlDatabase[shortURL].uniqueVisits.includes(req.session.userID)) {
-    urlDatabase[shortURL].uniqueVisits.push(req.session.userID);
+  if (urlDatabase[shortURL]) {
+  
+    const longURL = urlDatabase[shortURL].longURL;
+  
+    urlDatabase[shortURL].count += 1;
+    if (!urlDatabase[shortURL].uniqueVisits.includes(req.session.userID)) {
+      urlDatabase[shortURL].uniqueVisits.push(req.session.userID);
+    }
+  
+    res.redirect(longURL);
+  
   }
-
-  res.redirect(longURL);
+  res.status(404).send('NOT FOUND');
 });
 
 app.get('/register', (req, res) => {
