@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
+const methodOverride = require('method-override')
 const { urlsForUser, userState, generateRandomString, getDate } = require('./helpers');
 const bcrypt = require('bcrypt');
 const app = express();
@@ -32,12 +33,13 @@ const users = {
   }
 };
 
-app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['userID']
 }));
+app.use(methodOverride('_method'));
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
 
@@ -195,7 +197,7 @@ app.post('/urls', (req, res) => {
 });
 
 // Edit URL
-app.post('/urls/:shortURL', (req, res) => {
+app.put('/urls/:shortURL', (req, res) => {
 
   const longURL = req.body.longURL;
   const shortURL = req.params.shortURL;
@@ -220,7 +222,7 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 // Delete URL
-app.post('/urls/:shortURL/delete', (req, res) => {
+app.delete('/urls/:shortURL', (req, res) => {
 
   const cookie = req.session ? req.session : undefined;
   const shortURL = req.params.shortURL;
