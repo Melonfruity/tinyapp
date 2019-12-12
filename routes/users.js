@@ -3,7 +3,7 @@ const { userState, generateRandomString, getTimestamp } = require('../helpers');
 const { urlDatabase, users } = require('../database');
 
 userRouter.get('/register', (req, res) => {
-
+  
   const userObj = req.session ? users[req.session.userID] : undefined;
   
   if (userObj) {
@@ -19,6 +19,10 @@ userRouter.get('/register', (req, res) => {
   res.render(`register`, templateVariables);
   
 });
+
+userRouter.get('/', (req, res) => {
+  res.redirect(301, '/urls');
+})
 
 userRouter.get('/login', (req, res) => {
 
@@ -50,13 +54,13 @@ userRouter.post('/login', (req, res) => {
     res.redirect(301, '/urls');
 
   } else {
-    res.redirect(403, `/login`);
+    req.session.error = 406;
+    res.redirect(301, '/error');
   }
 
 });
 
 userRouter.post('/logout', (req, res) => {
-
   req.session = null;
   res.redirect(301, '/login');
 
@@ -74,7 +78,8 @@ userRouter.post('/register', (req, res) => {
     res.redirect(301, '/urls');
   
   } else {
-    res.redirect(400, '/register');
+    req.session.error = 400;
+    res.redirect(301, '/error');
   }
 
 });
@@ -101,7 +106,8 @@ userRouter.get('/u/:shortURL', (req, res) => {
     res.redirect(longURL);
   
   } else {
-    res.status(404).redirect('/error');
+    req.session.error = 404;
+    res.redirect(301, '/error');
   }
 
 });
@@ -109,13 +115,16 @@ userRouter.get('/u/:shortURL', (req, res) => {
 userRouter.get('/error', (req, res) => {
   
   // error message and header
+  const error = req.session.error;
+
   const userObj = req.session ? users[req.session.userID] : undefined;
 
   const templateVariables = {
     user: userObj,
-    statusCode: req.statusCode,
+    statusCode: `Error: ${error}`,
   };
 
+  res.statusCode = error;
   res.render('400', templateVariables);
 });
 

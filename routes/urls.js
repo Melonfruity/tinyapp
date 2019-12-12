@@ -40,6 +40,7 @@ urlsRouter.get('/new', (req, res) => {
     res.redirect(301, '/login');
   }
 
+
 });
 
 urlsRouter.get('/:shortURL', (req, res) => {
@@ -63,6 +64,7 @@ urlsRouter.get('/:shortURL', (req, res) => {
       res.render('urls_show', templateVariables);
     
     } else {
+      console.log(res.statusCode);
       res.status(401).redirect('/error');
     }
 
@@ -92,7 +94,8 @@ urlsRouter.post('/', (req, res) => {
     res.redirect('/urls');
   }
 
-  res.status(401).send('Unauthorized. Please log in if you haven\'t already');
+  req.session.error = 401;
+  res.redirect(301, '/error');
 
 });
 
@@ -116,7 +119,8 @@ urlsRouter.put('/:shortURL', (req, res) => {
     res.redirect(`/urls/${shortURL}`);
   
   } else {
-    res.redirect(400, `/urls`);
+    req.session.error = 401;
+    res.redirect(301, '/error');
   }
   
 });
@@ -135,10 +139,12 @@ urlsRouter.delete('/:shortURL', (req, res) => {
       res.redirect('/urls');
     
     } else {
-      res.redirect('/urls');
+      req.session.error = 401;
+      res.redirect(301, '/error');
     }
 
   } else {
+    req.session.error = 401;
     res.redirect(301, '/login');
   }
 
