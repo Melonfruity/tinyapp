@@ -63,7 +63,7 @@ urlsRouter.get('/:shortURL', (req, res) => {
       res.render('urls_show', templateVariables);
     
     } else {
-      res.status(401).send('Unauthorized Access');
+      res.status(401).redirect('/error');
     }
 
   } else {
@@ -92,7 +92,7 @@ urlsRouter.post('/', (req, res) => {
     res.redirect('/urls');
   }
 
-  res.status(401).send('Unauthorized please log in if you haven\'t already');
+  res.status(401).send('Unauthorized. Please log in if you haven\'t already');
 
 });
 

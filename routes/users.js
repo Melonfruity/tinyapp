@@ -1,7 +1,6 @@
 const userRouter = require('express').Router();
-const { userState } = require('../helpers');
+const { userState, generateRandomString, getTimestamp } = require('../helpers');
 const { urlDatabase, users } = require('../database');
-const { generateRandomString, getTimestamp } = require('../helpers');
 
 userRouter.get('/register', (req, res) => {
 
@@ -102,9 +101,22 @@ userRouter.get('/u/:shortURL', (req, res) => {
     res.redirect(longURL);
   
   } else {
-    res.status(404).send('NOT FOUND');
+    res.status(404).redirect('/error');
   }
 
+});
+
+userRouter.get('/error', (req, res) => {
+  
+  // error message and header
+  const userObj = req.session ? users[req.session.userID] : undefined;
+
+  const templateVariables = {
+    user: userObj,
+    statusCode: req.statusCode,
+  };
+
+  res.render('400', templateVariables);
 });
 
 module.exports = userRouter;
