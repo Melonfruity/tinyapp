@@ -20,6 +20,10 @@ $ npm install
 
 This application uses by default localhost at PORT 8080 (http://localhost:8080/urls).
 
+```sh
+$ npm start
+```
+
 A user must be logged in to do the following:
 
 1. Create a short url
