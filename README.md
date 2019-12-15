@@ -32,3 +32,4 @@ A url can be accessed by typing adding the route /u/:shortURL
 
 !["Screenshot of URLs page"](https://github.com/Melonfruity/tinyapp/blob/master/docs/urls.png)
 !["Screenshot of ShortURLs edit page"](https://github.com/Melonfruity/tinyapp/blob/master/docs/shortURLedit.png)
+!["Screenshot of ShortURLs edit page"](https://github.com/Melonfruity/tinyapp/blob/master/docs/tinyapptest.gif)
