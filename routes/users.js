@@ -4,19 +4,21 @@ const { urlDatabase, users } = require('../database');
 
 userRouter.get('/register', (req, res) => {
   
+  req.session = null;
+
   const userObj = req.session ? users[req.session.userID] : undefined;
-  
+
   if (userObj) {
     res.redirect(301, '/urls');
+  } else {
+    let templateVariables = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL],
+      user: userObj,
+    };
+  
+    res.render(`register`, templateVariables);
   }
-
-  let templateVariables = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    user: userObj,
-  };
-
-  res.render(`register`, templateVariables);
   
 });
 
@@ -25,6 +27,8 @@ userRouter.get('/', (req, res) => {
 })
 
 userRouter.get('/login', (req, res) => {
+
+  req.session = null;
 
   const userObj = req.session ? users[req.session.userID] : undefined;
   
@@ -43,7 +47,7 @@ userRouter.get('/login', (req, res) => {
 });
 
 userRouter.post('/login', (req, res) => {
- 
+  
   const email = req.body.email;
   const password = req.body.password;
   const userID = userState(email, password, users);

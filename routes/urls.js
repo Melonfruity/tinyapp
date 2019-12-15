@@ -40,7 +40,6 @@ urlsRouter.get('/new', (req, res) => {
     res.redirect(301, '/login');
   }
 
-
 });
 
 urlsRouter.get('/:shortURL', (req, res) => {
@@ -64,7 +63,6 @@ urlsRouter.get('/:shortURL', (req, res) => {
       res.render('urls_show', templateVariables);
     
     } else {
-      console.log(res.statusCode);
       res.status(401).redirect('/error');
     }
 
@@ -88,14 +86,14 @@ urlsRouter.post('/', (req, res) => {
       longURL: longURL,
       date: getDate(),
       count: 0,
-      uniqueVisits: 0,
+      uniqueVisits: [],
       userID: userID};
   
-    res.redirect('/urls');
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    req.session.error = 401;
+    res.redirect(301, '/error');
   }
-
-  req.session.error = 401;
-  res.redirect(301, '/error');
 
 });
 
@@ -136,7 +134,7 @@ urlsRouter.delete('/:shortURL', (req, res) => {
     if (urlDatabase[shortURL].userID === cookie.userID) {
 
       delete urlDatabase[shortURL];
-      res.redirect('/urls');
+      res.redirect('/urls');0
     
     } else {
       req.session.error = 401;
