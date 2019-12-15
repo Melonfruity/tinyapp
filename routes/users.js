@@ -2,6 +2,7 @@ const userRouter = require('express').Router();
 const { userState, generateRandomString, getTimestamp } = require('../helpers');
 const { urlDatabase, users } = require('../database');
 
+// Renders the register page
 userRouter.get('/register', (req, res) => {
   
   req.session = null;
@@ -22,10 +23,12 @@ userRouter.get('/register', (req, res) => {
   
 });
 
+// Renders /url/ page by default
 userRouter.get('/', (req, res) => {
   res.redirect(301, '/urls');
 })
 
+// Renders login page depending on cookie session
 userRouter.get('/login', (req, res) => {
 
   req.session = null;
@@ -46,12 +49,12 @@ userRouter.get('/login', (req, res) => {
 
 });
 
+// Logs in user using form data
 userRouter.post('/login', (req, res) => {
   
   const email = req.body.email;
   const password = req.body.password;
   const userID = userState(email, password, users);
- 
   if (userID) {
 
     req.session.userID = userID;
@@ -64,12 +67,14 @@ userRouter.post('/login', (req, res) => {
 
 });
 
+// Logs out user by clearing cookie session
 userRouter.post('/logout', (req, res) => {
   req.session = null;
   res.redirect(301, '/login');
 
 });
 
+// Register new user with form data
 userRouter.post('/register', (req, res) => {
  
   const email = req.body.email;
@@ -77,7 +82,6 @@ userRouter.post('/register', (req, res) => {
   const userID = userState(email, password, users, true);
 
   if (userID) {
-
     req.session.userID = userID;
     res.redirect(301, '/urls');
   
@@ -88,6 +92,7 @@ userRouter.post('/register', (req, res) => {
 
 });
 
+// redirects to longURL if it exists
 userRouter.get('/u/:shortURL', (req, res) => {
   
   const shortURL = req.params.shortURL;
@@ -116,6 +121,7 @@ userRouter.get('/u/:shortURL', (req, res) => {
 
 });
 
+// Error message if applicable
 userRouter.get('/error', (req, res) => {
   
   // error message and header

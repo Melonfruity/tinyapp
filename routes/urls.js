@@ -2,6 +2,7 @@ const urlsRouter = require('express').Router();
 const { urlsForUser, getDate, generateRandomString } = require('../helpers');
 const { urlDatabase, users } = require('../database');
 
+// Renders the URL index page
 urlsRouter.get('/', (req, res) => {
 
   const cookie = req.session ? users[req.session.userID] : undefined;
@@ -24,6 +25,7 @@ urlsRouter.get('/', (req, res) => {
 
 });
 
+// Renders the create new shortURL page
 urlsRouter.get('/new', (req, res) => {
 
   const cookie = req.session ? users[req.session.userID] : undefined;
@@ -42,6 +44,7 @@ urlsRouter.get('/new', (req, res) => {
 
 });
 
+// Renders the edit/modify page for a shortURL
 urlsRouter.get('/:shortURL', (req, res) => {
 
   const shortURL = req.params.shortURL;

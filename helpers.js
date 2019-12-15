@@ -25,7 +25,7 @@ const getUserByEmail = (email, password, userDatabase, register) => {
       userDatabase[id] = {
         id: id,
         email: email,
-        password: password,
+        password: bcrypt.hashSync(password, 10),
       };
       return id;
     }

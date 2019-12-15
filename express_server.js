@@ -9,6 +9,7 @@ const PORT = 8080;
 
 const app = express();
 
+// Middleware
 app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
@@ -18,8 +19,10 @@ app.use(cookieSession({
 app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({extended: true}));
 
+// ejs views
 app.set('view engine', 'ejs');
 
+// Routes
 app.use('/', usersRouter);
 app.use('/urls', urlsRouter);
 
