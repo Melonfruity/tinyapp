@@ -104,12 +104,19 @@ userRouter.get('/u/:shortURL', (req, res) => {
     // Increase visits
     urlDatabase[shortURL].count += 1;
 
+    // Unique visits
     if (!urlDatabase[shortURL].uniqueVisits[req.session.userID]) {
       const newUniqueVisitor = {
         id: req.session.userID ? req.session.userID : generateRandomString(),
         time: getTimestamp(),
       }
       urlDatabase[shortURL].uniqueVisits[newUniqueVisitor.id] = newUniqueVisitor;
+    } else {
+      const updateVisitor = {
+        id: req.session.userID,
+        time: getTimestamp(),
+      }
+      urlDatabase[shortURL].uniqueVisits[req.session.userID] = updateVisitor;
     }
   
     res.redirect(longURL);
